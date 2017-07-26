@@ -33,7 +33,7 @@ import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
-import android.util.Log;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -114,7 +114,7 @@ public class FrescoLoader {
     private boolean mLocalThumbnailPreviewsEnabled;
 
     private FrescoLoader(Context context) {
-        this.mContext = context.getApplicationContext();
+        this.mContext = context;
         this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
 
         this.mFadeDuration = GenericDraweeHierarchyBuilder.DEFAULT_FADE_DURATION;
@@ -148,13 +148,16 @@ public class FrescoLoader {
         this.mDraweeHolder = DraweeHolder.create(null, mContext);
     }
 
+    //****************context start*******************
     public static FrescoLoader with(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("context == null");
         }
         return new FrescoLoader(context);
     }
+    //****************context start*******************
 
+    //****************load start*******************
     public FrescoLoader load(Uri uri) {
         this.mUri = uri;
         return this;
@@ -177,6 +180,10 @@ public class FrescoLoader {
         );
     }
 
+    //****************load end*******************
+
+
+    //**************lowerLoad start**************
     public FrescoLoader lowerLoad(Uri uri) {
         this.mLowerUri = uri;
         return this;
@@ -198,7 +205,9 @@ public class FrescoLoader {
                         .build()
         );
     }
+    //**************lowerLoad end****************
 
+    //**************drawable and scaleType start****************
     public FrescoLoader placeholder(Drawable placeholderDrawable) {
         this.mPlaceholderDrawable = placeholderDrawable;
         return this;
@@ -255,16 +264,16 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader background(Drawable backgroundDrawable) {
+    public FrescoLoader backgroundDrawable(Drawable backgroundDrawable) {
         this.mBackgroundDrawable = backgroundDrawable;
         return this;
     }
 
-    public FrescoLoader background(int backgroundResId) {
-        return background(this.mContext.getResources().getDrawable(backgroundResId));
+    public FrescoLoader backgroundDrawable(int backgroundResId) {
+        return backgroundDrawable(this.mContext.getResources().getDrawable(backgroundResId));
     }
 
-    public FrescoLoader scaleType(ScalingUtils.ScaleType scaleType) {
+    public FrescoLoader actualScaleType(ScalingUtils.ScaleType scaleType) {
         this.mActualImageScaleType = scaleType;
         return this;
     }
@@ -273,12 +282,10 @@ public class FrescoLoader {
         this.mActualImageFocusPoint = focusPoint;
         return this;
     }
+    //**************drawable and scaleType end****************
 
-    public FrescoLoader colorFilter(ColorFilter colorFilter) {
-        this.mActualImageColorFilter = colorFilter;
-        return this;
-    }
 
+    //**************overlays start****************
     public FrescoLoader overlays(List<Drawable> overlays) {
         this.mOverlays = overlays;
         return this;
@@ -307,6 +314,17 @@ public class FrescoLoader {
         return pressedStateOverlay(this.mContext.getResources().getDrawable(resId));
     }
 
+    //**************overlays end****************
+
+    //**************colorFilter start****************
+    public FrescoLoader colorFilter(ColorFilter colorFilter) {
+        this.mActualImageColorFilter = colorFilter;
+        return this;
+    }
+    //**************colorFilter end****************
+
+    //***************RoundingParams start****************
+
     public FrescoLoader cornersRadius(int radius) {
         if (this.mRoundingParams == null) {
             this.mRoundingParams = new RoundingParams();
@@ -315,11 +333,27 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader border(int borderColor, int borderWidth) {
+    public FrescoLoader border(int borderColor, float borderWidth) {
         if (this.mRoundingParams == null) {
             this.mRoundingParams = new RoundingParams();
         }
         this.mRoundingParams.setBorder(borderColor, borderWidth);
+        return this;
+    }
+
+    public FrescoLoader borderColor(int borderColor) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setBorderColor(borderColor);
+        return this;
+    }
+
+    public FrescoLoader borderWidth(float borderWidth) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setBorderWidth(borderWidth);
         return this;
     }
 
@@ -331,11 +365,7 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader cornersRadii(
-            float topLeft,
-            float topRight,
-            float bottomRight,
-            float bottomLeft) {
+    public FrescoLoader cornersRadii(float topLeft, float topRight, float bottomRight, float bottomLeft) {
         if (this.mRoundingParams == null) {
             this.mRoundingParams = new RoundingParams();
         }
@@ -343,6 +373,41 @@ public class FrescoLoader {
         return this;
     }
 
+    public FrescoLoader cornersRadii(float[] radii) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setCornersRadii(radii);
+        return this;
+    }
+
+    public FrescoLoader overlayColor(int overlayColor) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setOverlayColor(overlayColor);
+        return this;
+    }
+
+    public FrescoLoader padding(float padding) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setPadding(padding);
+        return this;
+    }
+
+    public FrescoLoader roundingMethod(RoundingParams.RoundingMethod roundingMethod) {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setRoundingMethod(roundingMethod);
+        return this;
+    }
+
+    //***************RoundingParams end****************
+
+    //***************resize start****************
     public FrescoLoader resize(ResizeOptions resizeOptions) {
         this.mResizeOptions = resizeOptions;
         return this;
@@ -352,7 +417,16 @@ public class FrescoLoader {
         this.mResizeOptions = new ResizeOptions(targetWidth, targetHeight);
         return this;
     }
+    //***************resize end****************
 
+    //***************fadeDuration start****************
+    public FrescoLoader fadeDuration(int fadeDuration) {
+        this.mFadeDuration = fadeDuration;
+        return this;
+    }
+    //***************fadeDuration end****************
+
+    //***************boolean start****************
     public FrescoLoader autoRotateEnabled(boolean enabled) {
         this.mAutoRotateEnabled = enabled;
         return this;
@@ -378,18 +452,14 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader fadeDuration(int fadeDuration) {
-        this.mFadeDuration = fadeDuration;
-        return this;
-    }
-
     public FrescoLoader tapToRetryEnabled(boolean tapToRetryEnabled) {
         this.mTapToRetryEnabled = tapToRetryEnabled;
         return this;
     }
+    //***************boolean end****************
 
+    //load into an ImageView
     public void into(ImageView targetView) {
-        Log.e("FrescoLoader", "targetView:" + targetView);
         if (targetView == null) {
             return;
         }
@@ -399,7 +469,7 @@ public class FrescoLoader {
         if (mUri == null) {
             return;
         }
-        //hierarchy
+        //build hierarchy
         GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(mContext.getResources())
                 .setPlaceholderImage(mPlaceholderDrawable)
                 .setPlaceholderImageScaleType(mPlaceholderScaleType)
@@ -419,6 +489,7 @@ public class FrescoLoader {
                 .setRoundingParams(mRoundingParams)
                 .build();
 
+        //set hierarchy
         mDraweeHolder.setHierarchy(hierarchy);
 
         //image request
@@ -437,25 +508,60 @@ public class FrescoLoader {
                 .setRetainImageOnFailure(mRetainImageOnFailure)
                 .setAutoPlayAnimations(mAutoPlayAnimations);
 
+        //if set the mLowerUri, then pass this param
         if (mLowerUri != null) {
             controllerBuilder.setLowResImageRequest(ImageRequest.fromUri(mLowerUri));
         }
-
+        //build controller
         DraweeController draweeController = controllerBuilder.build();
+        //set controller
         mDraweeHolder.setController(draweeController);
 
+        //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
+        //in your will, you should override setTemporaryDetachListener() to holder the param TemporaryDetachListener.
+        //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
+        if (targetView instanceof TemporaryDetachListener) {
+            ((TemporaryDetachListener) targetView).setTemporaryDetachListener(mDraweeHolderDispatcher);
+        }
 
-        //listener
+        //remove listener if needed
         targetView.removeOnAttachStateChangeListener(mDraweeHolderDispatcher);
+        //if is already attached, call method onViewAttachedToWindow.
+        if (isAttachedToWindow(targetView)) {
+            mDraweeHolderDispatcher.onViewAttachedToWindow(targetView);
+        }
+        //add attach state change listener
         targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
-        targetView.setOnTouchListener(mDraweeHolderDispatcher);
-
+        //if is enable retry when fail, set OnTouchListener to intercept the touch event
+        if (mTapToRetryEnabled) {
+            targetView.setOnTouchListener(mDraweeHolderDispatcher);
+        }
         //set image drawable
         targetView.setImageDrawable(mDraweeHolder.getTopLevelDrawable());
     }
 
+    private static boolean isAttachedToWindow(View view) {
+        if (Build.VERSION.SDK_INT >= 19) {
+            return view.isAttachedToWindow();
+        } else {
+            return view.getWindowToken() != null;
+        }
+    }
 
-    private class DraweeHolderDispatcher implements View.OnAttachStateChangeListener, View.OnTouchListener {
+
+    //if needed, let's your image view impl this interface
+    public interface TemporaryDetachListener {
+
+        void setTemporaryDetachListener(TemporaryDetachListener listener);
+
+        void onStartTemporaryDetach(View view);
+
+        void onFinishTemporaryDetach(View view);
+    }
+
+
+    //DraweeHolder event dispatch
+    private class DraweeHolderDispatcher implements View.OnAttachStateChangeListener, View.OnTouchListener, TemporaryDetachListener {
 
         @Override
         public void onViewAttachedToWindow(View v) {
@@ -468,6 +574,25 @@ public class FrescoLoader {
         public void onViewDetachedFromWindow(View v) {
             if (mDraweeHolder != null) {
                 mDraweeHolder.onDetach();
+            }
+        }
+
+        @Override
+        public void setTemporaryDetachListener(TemporaryDetachListener listener) {
+            //empty
+        }
+
+        @Override
+        public void onStartTemporaryDetach(View view) {
+            if (mDraweeHolder != null) {
+                mDraweeHolder.onDetach();
+            }
+        }
+
+        @Override
+        public void onFinishTemporaryDetach(View view) {
+            if (mDraweeHolder != null) {
+                mDraweeHolder.onAttach();
             }
         }
 

@@ -50,10 +50,9 @@ public class MainActivity extends AppCompatActivity {
                         .colorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN))
                         .pressedStateOverlay(R.mipmap.ic_launcher_round)
 //                        .overlay(R.mipmap.ic_launcher_round)
-                        .background(new ColorDrawable(Color.parseColor("#ee000000")))
-                        .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                        .backgroundDrawable(new ColorDrawable(Color.parseColor("#ee000000")))
+                        .actualScaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .lowerLoad(R.mipmap.ic_launcher_round)
-                        .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
 //                        .load("")//fail
                         .load("http://photocdn.sohu.com/20160208/mp58375678_1454886851667_2.gif")//gif
                         .load("http://desk.fd.zol-img.com.cn/t_s960x600c5/g5/M00/0D/01/ChMkJlgq0z-IC78PAA1UbwykJUgAAXxIwMAwQcADVSH340.jpg")
