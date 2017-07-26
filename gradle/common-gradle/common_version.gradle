@@ -1,0 +1,19 @@
+ext {
+    //java
+    global_javaVersion = JavaVersion.VERSION_1_7
+    //gradle
+    global_androidGradlePluginVersion = "2.3.3"
+    //build
+    global_compileSdkVersion = 25
+    global_buildToolsVersion = "25.0.3"
+    global_minSdkVersion = 14
+    global_targetSdkVersion = 22
+    //android library
+    global_androidSupportVersion = "25.3.1"
+    global_androidMultidexVersion = "1.0.1"
+    global_androidConstraintLayoutVersion = "1.0.2"
+    //test library
+    global_junitVersion = "4.12"
+    //third library
+    global_okhttpVersion = "3.8.1"
+}

@@ -1,0 +1,40 @@
+//是否在jenkins上构建
+boolean isJenkins() {
+    Map<String, String> map = System.getenv()
+    boolean hasBuildJob = map.containsKey("JOB_NAME")
+    boolean hasBuildNumber = map.containsKey("BUILD_NUMBER")
+    boolean ret = false
+    if (hasBuildJob && hasBuildNumber) {
+        ret = true
+    }
+    return ret
+}
+
+//获得提交次数
+Integer getGitCommitCount(String branch) {
+    def countCmd = "git rev-list ${branch} --count"
+    def count = countCmd.execute().text.trim().toInteger() + 00000000
+    return count
+}
+
+//获得tag
+String getGitTag(String branch) {
+    def tagCmd = "git describe ${branch} -- tags"
+    def tag = tagCmd.execute().text.trim()
+    return tag
+}
+
+//获取时间戳
+String getDate() {
+    def date = new Date()
+    def formatedDate = date.format('yyyyMMddHHmmss')
+    return formatedDate
+}
+
+//导出上面的几个函数
+ext {
+    isJenkins = this.&isJenkins
+    getGitCommitCount = this.&getGitCommitCount
+    getGitTag = this.&getGitTag
+    getDate = this.&getDate
+}

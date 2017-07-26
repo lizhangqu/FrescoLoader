@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion global_compileSdkVersion
+    buildToolsVersion global_buildToolsVersion
+
+    defaultConfig {
+        applicationId "io.github.lizhangqu.sample"
+        minSdkVersion global_minSdkVersion
+        targetSdkVersion global_targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.android.support:appcompat-v7:${global_androidSupportVersion}"
+    compile "com.android.support.constraint:constraint-layout:${global_androidConstraintLayoutVersion}"
+    testCompile "junit:junit:${global_junitVersion}"
+    // fresco
+    compile("com.facebook.fresco:fresco:${FRESCO_VERSION}") {
+        exclude group: 'com.android.support'
+    }
+    // 支持 GIF 动图，需要添加
+    compile("com.facebook.fresco:animated-gif:${FRESCO_VERSION}") {
+        exclude group: 'com.android.support'
+    }
+    // 支持 WebP （静态图+动图），需要添加
+    compile("com.facebook.fresco:animated-webp:${FRESCO_VERSION}") {
+        exclude group: 'com.android.support'
+    }
+    compile("com.facebook.fresco:webpsupport:${FRESCO_VERSION}") {
+        exclude group: 'com.android.support'
+    }
+
+    compile project(':library')
+
+}
