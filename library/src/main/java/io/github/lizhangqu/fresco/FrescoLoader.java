@@ -607,14 +607,14 @@ public class FrescoLoader {
                 int newHeight = -1;
                 //mDesiredAspectRatio= width/height;
                 if (mUseFixedWidth) {
-                    //with must > 0
-                    if (width > 0) {
+                    //with must > 0 & height=0
+                    if (width > 0 && height == 0) {
                         newWidth = width;
                         newHeight = (int) (width * 1.0 / mDesiredAspectRatio + 0.5);
                     }
                 } else {
-                    //height must > 0
-                    if (height > 0) {
+                    //height must > 0 & width=0
+                    if (height > 0 && width == 0) {
                         newHeight = height;
                         newWidth = (int) (height * mDesiredAspectRatio + 0.5);
                     }
