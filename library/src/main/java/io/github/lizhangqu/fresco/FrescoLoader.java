@@ -62,6 +62,7 @@ import java.util.List;
 
 /**
  * fresco图片加载器, https://www.fresco-cn.org/docs/
+ * see: https://www.fresco-cn.org/docs/writing-custom-views.html
  *
  * @author lizhangqu
  * @version V1.0
