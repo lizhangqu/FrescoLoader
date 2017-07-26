@@ -291,6 +291,10 @@ public class FrescoLoader {
         return overlays(overlay == null ? null : Collections.singletonList(overlay));
     }
 
+    public FrescoLoader overlay(int resId) {
+        return overlay(this.mContext.getResources().getDrawable(resId));
+    }
+
     public FrescoLoader pressedStateOverlay(Drawable drawable) {
         if (drawable == null) {
             this.mPressedStateOverlay = null;
@@ -300,6 +304,10 @@ public class FrescoLoader {
             this.mPressedStateOverlay = stateListDrawable;
         }
         return this;
+    }
+
+    public FrescoLoader pressedStateOverlay(int resId) {
+        return pressedStateOverlay(this.mContext.getResources().getDrawable(resId));
     }
 
     public FrescoLoader cornersRadius(int radius) {
