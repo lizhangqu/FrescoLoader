@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:layout_width="400dp"
+        android:layout_height="400dp"/>
 
     <Button
         android:id="@+id/btn"
