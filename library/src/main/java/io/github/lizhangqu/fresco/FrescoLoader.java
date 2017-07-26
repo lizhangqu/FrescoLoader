@@ -63,8 +63,9 @@ import java.util.List;
  * @version V1.0
  * @since 2017-07-26 13:16
  */
-public class FrescoLoader implements View.OnAttachStateChangeListener, View.OnTouchListener {
+public class FrescoLoader {
     private Context mContext;
+    private DraweeHolderDispatcher mDraweeHolderDispatcher;
     private DraweeHolder<DraweeHierarchy> mDraweeHolder;
 
     private Uri mUri;
@@ -116,6 +117,7 @@ public class FrescoLoader implements View.OnAttachStateChangeListener, View.OnTo
 
     private FrescoLoader(Context context) {
         this.mContext = context.getApplicationContext();
+        this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
 
         this.mFadeDuration = GenericDraweeHierarchyBuilder.DEFAULT_FADE_DURATION;
         this.mDesiredAspectRatio = 0;
@@ -308,11 +310,18 @@ public class FrescoLoader implements View.OnAttachStateChangeListener, View.OnTo
         return this;
     }
 
-    public FrescoLoader roundAsCircle(int borderColor, int borderWidth) {
+    public FrescoLoader border(int borderColor, int borderWidth) {
         if (this.mRoundingParams == null) {
             this.mRoundingParams = new RoundingParams();
         }
         this.mRoundingParams.setBorder(borderColor, borderWidth);
+        return this;
+    }
+
+    public FrescoLoader roundAsCircle() {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
         this.mRoundingParams.setRoundAsCircle(true);
         return this;
     }
@@ -436,36 +445,42 @@ public class FrescoLoader implements View.OnAttachStateChangeListener, View.OnTo
         DraweeController draweeController = controllerBuilder.build();
         mDraweeHolder.setController(draweeController);
 
+
         //listener
-        targetView.removeOnAttachStateChangeListener(this);
-        targetView.addOnAttachStateChangeListener(this);
-        targetView.setOnTouchListener(this);
+        targetView.removeOnAttachStateChangeListener(mDraweeHolderDispatcher);
+        targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
+        targetView.setOnTouchListener(mDraweeHolderDispatcher);
 
         //set image drawable
         targetView.setImageDrawable(mDraweeHolder.getTopLevelDrawable());
     }
 
-    @Override
-    public void onViewAttachedToWindow(View v) {
-        if (mDraweeHolder != null) {
-            mDraweeHolder.onAttach();
-        }
-    }
 
-    @Override
-    public void onViewDetachedFromWindow(View v) {
-        if (mDraweeHolder != null) {
-            mDraweeHolder.onDetach();
-        }
-    }
+    private class DraweeHolderDispatcher implements View.OnAttachStateChangeListener, View.OnTouchListener {
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (mDraweeHolder != null) {
-            if (mDraweeHolder.onTouchEvent(event)) {
-                return true;
+        @Override
+        public void onViewAttachedToWindow(View v) {
+            if (mDraweeHolder != null) {
+                mDraweeHolder.onAttach();
             }
         }
-        return false;
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {
+            if (mDraweeHolder != null) {
+                mDraweeHolder.onDetach();
+            }
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (mDraweeHolder != null) {
+                if (mDraweeHolder.onTouchEvent(event)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
+
 }
