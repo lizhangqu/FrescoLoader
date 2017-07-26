@@ -29,6 +29,7 @@ package io.github.lizhangqu.fresco;
 
 import android.content.Context;
 import android.graphics.ColorFilter;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
@@ -417,8 +418,8 @@ public class FrescoLoader {
     //***************RoundingParams end****************
 
     //***************resize start****************
-    public FrescoLoader resize(ResizeOptions resizeOptions) {
-        this.mResizeOptions = resizeOptions;
+    public FrescoLoader resize(Point point) {
+        this.mResizeOptions = new ResizeOptions(point.x, point.y);
         return this;
     }
 
