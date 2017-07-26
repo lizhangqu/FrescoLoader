@@ -42,6 +42,7 @@ import android.widget.ImageView;
 import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
+import com.facebook.drawee.controller.ControllerListener;
 import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
@@ -52,6 +53,7 @@ import com.facebook.drawee.view.DraweeHolder;
 import com.facebook.imagepipeline.common.ResizeOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.facebook.imagepipeline.request.Postprocessor;
 
 import java.io.File;
 import java.util.Collections;
@@ -68,10 +70,13 @@ public class FrescoLoader {
     private Context mContext;
     private DraweeHolderDispatcher mDraweeHolderDispatcher;
     private DraweeHolder<DraweeHierarchy> mDraweeHolder;
+    private Postprocessor mPostprocessor;
+    private ControllerListener mControllerListener;
 
     private Uri mUri;
     private Uri mLowerUri;
     private ResizeOptions mResizeOptions;
+    private float mDesiredAspectRatio;
     private boolean mAutoRotateEnabled = false;
 
     private int mFadeDuration;
@@ -118,6 +123,7 @@ public class FrescoLoader {
         this.mContext = context;
         this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
 
+        this.mDesiredAspectRatio = 0;
         this.mFadeDuration = GenericDraweeHierarchyBuilder.DEFAULT_FADE_DURATION;
 
         this.mPlaceholderDrawable = null;
@@ -146,6 +152,9 @@ public class FrescoLoader {
         this.mRetainImageOnFailure = false;
         this.mProgressiveRenderingEnabled = false;
         this.mLocalThumbnailPreviewsEnabled = false;
+
+        this.mPostprocessor = null;
+        this.mControllerListener = null;
         this.mDraweeHolder = DraweeHolder.create(null, mContext);
     }
 
@@ -218,8 +227,8 @@ public class FrescoLoader {
         return placeholder(this.mContext.getResources().getDrawable(placeholderResId));
     }
 
-    public FrescoLoader placeholderScaleType(ScalingUtils.ScaleType scaleType) {
-        this.mPlaceholderScaleType = scaleType;
+    public FrescoLoader placeholderScaleType(ImageView.ScaleType scaleType) {
+        this.mPlaceholderScaleType = convertToFrescoScaleType(scaleType, GenericDraweeHierarchyBuilder.DEFAULT_SCALE_TYPE);
         return this;
     }
 
@@ -232,8 +241,8 @@ public class FrescoLoader {
         return retry(this.mContext.getResources().getDrawable(retryResId));
     }
 
-    public FrescoLoader retryScaleType(ScalingUtils.ScaleType scaleType) {
-        this.mRetryScaleType = scaleType;
+    public FrescoLoader retryScaleType(ImageView.ScaleType scaleType) {
+        this.mRetryScaleType = convertToFrescoScaleType(scaleType, GenericDraweeHierarchyBuilder.DEFAULT_SCALE_TYPE);
         return this;
     }
 
@@ -246,8 +255,8 @@ public class FrescoLoader {
         return failure(this.mContext.getResources().getDrawable(failureResId));
     }
 
-    public FrescoLoader failureScaleType(ScalingUtils.ScaleType scaleType) {
-        this.mFailureScaleType = scaleType;
+    public FrescoLoader failureScaleType(ImageView.ScaleType scaleType) {
+        this.mFailureScaleType = convertToFrescoScaleType(scaleType, GenericDraweeHierarchyBuilder.DEFAULT_SCALE_TYPE);
         return this;
     }
 
@@ -260,8 +269,8 @@ public class FrescoLoader {
         return progressBar(this.mContext.getResources().getDrawable(progressResId));
     }
 
-    public FrescoLoader progressBarScaleType(ScalingUtils.ScaleType scaleType) {
-        this.mPlaceholderScaleType = scaleType;
+    public FrescoLoader progressBarScaleType(ImageView.ScaleType scaleType) {
+        this.mPlaceholderScaleType = convertToFrescoScaleType(scaleType, GenericDraweeHierarchyBuilder.DEFAULT_SCALE_TYPE);
         return this;
     }
 
@@ -274,8 +283,8 @@ public class FrescoLoader {
         return backgroundDrawable(this.mContext.getResources().getDrawable(backgroundResId));
     }
 
-    public FrescoLoader actualScaleType(ScalingUtils.ScaleType scaleType) {
-        this.mActualImageScaleType = scaleType;
+    public FrescoLoader actualScaleType(ImageView.ScaleType scaleType) {
+        this.mActualImageScaleType = convertToFrescoScaleType(scaleType, GenericDraweeHierarchyBuilder.DEFAULT_ACTUAL_IMAGE_SCALE_TYPE);
         return this;
     }
 
@@ -436,6 +445,13 @@ public class FrescoLoader {
     }
     //***************fadeDuration end****************
 
+    //***************desiredAspectRatio start****************
+    public FrescoLoader desiredAspectRatio(float desiredAspectRatio) {
+        this.mDesiredAspectRatio = desiredAspectRatio;
+        return this;
+    }
+    //***************desiredAspectRatio end****************
+
     //***************boolean start****************
     public FrescoLoader autoRotateEnabled(boolean enabled) {
         this.mAutoRotateEnabled = enabled;
@@ -468,6 +484,22 @@ public class FrescoLoader {
     }
     //***************boolean end****************
 
+    //use fresco class method
+    //you'd better not use
+    @Deprecated
+    public FrescoLoader postProcessor(Postprocessor postProcessor) {
+        this.mPostprocessor = postProcessor;
+        return this;
+    }
+
+    //you'd better not use
+    @Deprecated
+    public FrescoLoader controllerListener(ControllerListener controllerListener) {
+        this.mControllerListener = controllerListener;
+        return this;
+    }
+
+
     //load into an ImageView
     public void into(ImageView targetView) {
         if (targetView == null) {
@@ -497,6 +529,7 @@ public class FrescoLoader {
                 .setOverlays(mOverlays)
                 .setPressedStateOverlay(mPressedStateOverlay)
                 .setRoundingParams(mRoundingParams)
+                .setDesiredAspectRatio(mDesiredAspectRatio)
                 .build();
 
         //set hierarchy
@@ -504,19 +537,22 @@ public class FrescoLoader {
 
         //image request
         ImageRequest request = ImageRequestBuilder.newBuilderWithSource(mUri)
-                .setResizeOptions(mResizeOptions)
-                .setProgressiveRenderingEnabled(mProgressiveRenderingEnabled)
                 .setAutoRotateEnabled(mAutoRotateEnabled)
                 .setLocalThumbnailPreviewsEnabled(mLocalThumbnailPreviewsEnabled)
+                .setPostprocessor(mPostprocessor)
+                .setProgressiveRenderingEnabled(mProgressiveRenderingEnabled)
+                .setResizeOptions(mResizeOptions)
                 .build();
 
         //controller
         PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder()
-                .setOldController(mDraweeHolder.getController())
+                .setAutoPlayAnimations(mAutoPlayAnimations)
+                .setControllerListener(mControllerListener)
                 .setImageRequest(request)
-                .setTapToRetryEnabled(mTapToRetryEnabled)
+                .setOldController(mDraweeHolder.getController())
                 .setRetainImageOnFailure(mRetainImageOnFailure)
-                .setAutoPlayAnimations(mAutoPlayAnimations);
+                .setTapToRetryEnabled(mTapToRetryEnabled);
+
 
         //if set the mLowerUri, then pass this param
         if (mLowerUri != null) {
@@ -558,8 +594,34 @@ public class FrescoLoader {
         }
     }
 
+    private static ScalingUtils.ScaleType convertToFrescoScaleType(ImageView.ScaleType scaleType, ScalingUtils.ScaleType defaultScaleType) {
+        switch (scaleType) {
+            case CENTER:
+                return ScalingUtils.ScaleType.CENTER;
+            case CENTER_CROP:
+                return ScalingUtils.ScaleType.CENTER_CROP;
+            case CENTER_INSIDE:
+                return ScalingUtils.ScaleType.CENTER_INSIDE;
+            case FIT_CENTER:
+                return ScalingUtils.ScaleType.FIT_CENTER;
+            case FIT_START:
+                return ScalingUtils.ScaleType.FIT_START;
+            case FIT_END:
+                return ScalingUtils.ScaleType.FIT_END;
+            case FIT_XY:
+                return ScalingUtils.ScaleType.FIT_XY;
+            case MATRIX:
+                //NOTE this case
+                //you should set FocusPoint to make sentence
+                return ScalingUtils.ScaleType.FOCUS_CROP;
+            default:
+                return defaultScaleType;
+        }
+    }
 
-    //if needed, let's your image view impl this interface
+
+    //if needed, let's your image view implement this interface
+    //also it's not must be required to implement this interface
     public interface TemporaryDetachListener {
 
         void setTemporaryDetachListener(TemporaryDetachListener listener);
