@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.facebook.common.util.UriUtil;
@@ -77,6 +78,7 @@ public class FrescoLoader {
     private Uri mLowerUri;
     private ResizeOptions mResizeOptions;
     private float mDesiredAspectRatio;
+    private boolean mUseFixedWidth;
     private boolean mAutoRotateEnabled = false;
 
     private int mFadeDuration;
@@ -124,6 +126,7 @@ public class FrescoLoader {
         this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
 
         this.mDesiredAspectRatio = 0;
+        this.mUseFixedWidth = true;
         this.mFadeDuration = GenericDraweeHierarchyBuilder.DEFAULT_FADE_DURATION;
 
         this.mPlaceholderDrawable = null;
@@ -446,10 +449,18 @@ public class FrescoLoader {
     //***************fadeDuration end****************
 
     //***************desiredAspectRatio start****************
-    public FrescoLoader desiredAspectRatio(float desiredAspectRatio) {
+    public FrescoLoader desiredAspectRatioWithWidth(float desiredAspectRatio) {
+        this.mUseFixedWidth = true;
         this.mDesiredAspectRatio = desiredAspectRatio;
         return this;
     }
+
+    public FrescoLoader desiredAspectRatioWithHeight(float desiredAspectRatio) {
+        this.mUseFixedWidth = false;
+        this.mDesiredAspectRatio = desiredAspectRatio;
+        return this;
+    }
+
     //***************desiredAspectRatio end****************
 
     //***************boolean start****************
@@ -584,6 +595,37 @@ public class FrescoLoader {
         }
         //set image drawable
         targetView.setImageDrawable(mDraweeHolder.getTopLevelDrawable());
+
+        //compat for desiredAspectRatio
+        if (mDesiredAspectRatio != 0) {
+            ViewGroup.LayoutParams layoutParams = targetView.getLayoutParams();
+            if (layoutParams != null) {
+                int width = layoutParams.width;
+                int height = layoutParams.height;
+                int newWidth = -1;
+                int newHeight = -1;
+                //mDesiredAspectRatio= width/height;
+                if (mUseFixedWidth) {
+                    //with must > 0
+                    if (width > 0) {
+                        newWidth = width;
+                        newHeight = (int) (width * 1.0 / mDesiredAspectRatio + 0.5);
+                    }
+                } else {
+                    //height must > 0
+                    if (height > 0) {
+                        newHeight = height;
+                        newWidth = (int) (height * mDesiredAspectRatio + 0.5);
+                    }
+                }
+                if (newWidth != -1 && newHeight != -1) {
+                    layoutParams.width = newWidth;
+                    layoutParams.height = newHeight;
+                    targetView.requestLayout();
+                }
+            }
+        }
+
     }
 
     private static boolean isAttachedToWindow(View view) {
