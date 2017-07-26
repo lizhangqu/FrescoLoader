@@ -250,7 +250,7 @@ public class FrescoLoader {
         return progressBar(this.mContext.getResources().getDrawable(progressResId));
     }
 
-    public FrescoLoader progressScaleType(ScalingUtils.ScaleType scaleType) {
+    public FrescoLoader progressBarScaleType(ScalingUtils.ScaleType scaleType) {
         this.mPlaceholderScaleType = scaleType;
         return this;
     }

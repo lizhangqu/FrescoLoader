@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
                         .cornersRadius(10)
                         .roundAsCircle()
                         .progressBar(new CircleProgressBarDrawable())
-                        .progressScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                        .progressBarScaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .placeholder(R.mipmap.ic_launcher_round)
                         .placeholderScaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .failure(R.mipmap.ic_launcher_round)
@@ -49,14 +49,14 @@ public class MainActivity extends AppCompatActivity {
                         .retryScaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .colorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN))
                         .pressedStateOverlay(R.mipmap.ic_launcher_round)
-                        .overlay(R.mipmap.ic_launcher_round)
+//                        .overlay(R.mipmap.ic_launcher_round)
                         .background(new ColorDrawable(Color.parseColor("#ee000000")))
                         .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .lowerLoad(R.mipmap.ic_launcher_round)
                         .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
 //                        .load("")//fail
                         .load("http://photocdn.sohu.com/20160208/mp58375678_1454886851667_2.gif")//gif
-                        .load("http://img1.imgtn.bdimg.com/it/u=615670559,766970618&fm=26&gp=0.jpg")
+                        .load("http://desk.fd.zol-img.com.cn/t_s960x600c5/g5/M00/0D/01/ChMkJlgq0z-IC78PAA1UbwykJUgAAXxIwMAwQcADVSH340.jpg")
                         .localThumbnailPreviewsEnabled(true)
                         .into(image);
             }
