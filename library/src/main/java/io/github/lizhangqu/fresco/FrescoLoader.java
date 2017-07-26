@@ -397,11 +397,20 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader roundingMethod(RoundingParams.RoundingMethod roundingMethod) {
+
+    public FrescoLoader roundingMethodWithOverlayColor() {
         if (this.mRoundingParams == null) {
             this.mRoundingParams = new RoundingParams();
         }
-        this.mRoundingParams.setRoundingMethod(roundingMethod);
+        this.mRoundingParams.setRoundingMethod(RoundingParams.RoundingMethod.OVERLAY_COLOR);
+        return this;
+    }
+
+    public FrescoLoader roundingMethodWithBitmapOnly() {
+        if (this.mRoundingParams == null) {
+            this.mRoundingParams = new RoundingParams();
+        }
+        this.mRoundingParams.setRoundingMethod(RoundingParams.RoundingMethod.BITMAP_ONLY);
         return this;
     }
 
