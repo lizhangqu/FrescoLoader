@@ -74,8 +74,6 @@ public class FrescoLoader {
     private boolean mAutoRotateEnabled = false;
 
     private int mFadeDuration;
-    //宽高比
-    private float mDesiredAspectRatio;
     private Drawable mPlaceholderDrawable;
     private Drawable mRetryDrawable;
     private Drawable mFailureDrawable;
@@ -120,7 +118,6 @@ public class FrescoLoader {
         this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
 
         this.mFadeDuration = GenericDraweeHierarchyBuilder.DEFAULT_FADE_DURATION;
-        this.mDesiredAspectRatio = 0;
 
         this.mPlaceholderDrawable = null;
         this.mPlaceholderScaleType = GenericDraweeHierarchyBuilder.DEFAULT_SCALE_TYPE;
@@ -386,11 +383,6 @@ public class FrescoLoader {
         return this;
     }
 
-    public FrescoLoader desiredAspectRatio(float desiredAspectRatio) {
-        this.mDesiredAspectRatio = desiredAspectRatio;
-        return this;
-    }
-
     public FrescoLoader tapToRetryEnabled(boolean tapToRetryEnabled) {
         this.mTapToRetryEnabled = tapToRetryEnabled;
         return this;
@@ -424,7 +416,6 @@ public class FrescoLoader {
                 .setBackground(mBackgroundDrawable)
                 .setOverlays(mOverlays)
                 .setPressedStateOverlay(mPressedStateOverlay)
-                .setDesiredAspectRatio(mDesiredAspectRatio)
                 .setRoundingParams(mRoundingParams)
                 .build();
 

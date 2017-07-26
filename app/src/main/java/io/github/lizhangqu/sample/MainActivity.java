@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
                         .autoRotateEnabled(true)
                         .retainImageOnFailure(true)
                         .tapToRetryEnabled(true)
-                        .desiredAspectRatio(1.5F)
                         .focusPoint(new PointF(30, 50))
                         .resize(400, 400)
                         .fadeDuration(1000)
@@ -55,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
                         .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
                         .lowerLoad(R.mipmap.ic_launcher_round)
                         .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
+//                        .load("")//fail
+                        .load("http://photocdn.sohu.com/20160208/mp58375678_1454886851667_2.gif")//gif
                         .load("http://img1.imgtn.bdimg.com/it/u=615670559,766970618&fm=26&gp=0.jpg")
                         .localThumbnailPreviewsEnabled(true)
                         .into(image);
