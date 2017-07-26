@@ -7,6 +7,8 @@ import android.widget.ImageView;
 
 import com.facebook.drawee.drawable.ScalingUtils;
 
+import io.github.lizhangqu.fresco.FrescoLoader;
+
 public class MainActivity extends AppCompatActivity {
 
     private ImageView image;
