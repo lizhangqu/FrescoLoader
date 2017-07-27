@@ -71,6 +71,7 @@ import java.util.List;
  */
 public class FrescoLoader {
     private Context mContext;
+    private boolean mCompatTemporaryDetach;
     private DraweeHolderDispatcher mDraweeHolderDispatcher;
     private DraweeHolder<DraweeHierarchy> mDraweeHolder;
     private Postprocessor mPostprocessor;
@@ -541,8 +542,14 @@ public class FrescoLoader {
         return this;
     }
 
-
-    public FrescoLoader prepare() {
+    /**
+     * 兼容listview的onStartTemporaryDetach和onFinishTemporaryDetach
+     *
+     * @param compatTemporaryDetach
+     * @return
+     */
+    public FrescoLoader compatTemporaryDetach(boolean compatTemporaryDetach) {
+        this.mCompatTemporaryDetach = compatTemporaryDetach;
         return this;
     }
 
@@ -618,21 +625,22 @@ public class FrescoLoader {
             //set controller
             mDraweeHolder.setController(draweeController);
 
-            //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
-            //you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
-            //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
-            if (targetView instanceof TemporaryDetachListener) {
-                ((TemporaryDetachListener) targetView).onSaveTemporaryDetachListener(mDraweeHolderDispatcher);
+            if (mCompatTemporaryDetach) {
+                ViewCompat.addOnAttachStateChangeListener(targetView, mDraweeHolderDispatcher);
+            } else {
+                //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
+                //you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
+                //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
+                if (targetView instanceof TemporaryDetachListener) {
+                    ((TemporaryDetachListener) targetView).onSaveTemporaryDetachListener(mDraweeHolderDispatcher);
+                }
+                //if is already attached, call method onViewAttachedToWindow.
+                if (isAttachedToWindow(targetView)) {
+                    mDraweeHolderDispatcher.onViewAttachedToWindow(targetView);
+                }
+                //add attach state change listener
+                targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
             }
-
-            //remove listener if needed
-            targetView.removeOnAttachStateChangeListener(mDraweeHolderDispatcher);
-            //if is already attached, call method onViewAttachedToWindow.
-            if (isAttachedToWindow(targetView)) {
-                mDraweeHolderDispatcher.onViewAttachedToWindow(targetView);
-            }
-            //add attach state change listener
-            targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
             targetView.setOnTouchListener(mDraweeHolderDispatcher);
             targetView.setTag(mDraweeHolder);
         } else {
