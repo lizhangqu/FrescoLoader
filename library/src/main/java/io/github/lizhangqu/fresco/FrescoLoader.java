@@ -35,7 +35,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +63,7 @@ import java.util.List;
 /**
  * fresco图片加载器, https://www.fresco-cn.org/docs/
  * see: https://www.fresco-cn.org/docs/writing-custom-views.html
+ * if you use this FrescoLoader, please make sure you have not use the ImageView's tag
  *
  * @author lizhangqu
  * @version V1.0
@@ -773,7 +773,6 @@ public class FrescoLoader {
 
         @Override
         public void onViewAttachedToWindow(View v) {
-            Log.e("TAG", "onViewAttachedToWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onAttach();
             }
@@ -781,7 +780,6 @@ public class FrescoLoader {
 
         @Override
         public void onViewDetachedFromWindow(View v) {
-            Log.e("TAG", "onViewDetachedFromWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onDetach();
             }

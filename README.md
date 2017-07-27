@@ -14,6 +14,10 @@ See sample [here on Github](https://github.com/lizhangqu/FrescoLoader/tree/maste
 
 To run the sample application, simply clone this repository and use android studio to compile it, then install it on a connected device.
 
+## Note
+
+>If you use this FrescoLoader, please make sure you have not use the ImageView's tag.
+
 ## Usage
 
 ### Dependency

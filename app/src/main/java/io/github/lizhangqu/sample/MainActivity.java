@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -19,12 +20,14 @@ import io.github.lizhangqu.fresco.FrescoLoader;
 public class MainActivity extends AppCompatActivity {
 
     private ImageView image;
+    private ViewGroup parent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         image = (ImageView) findViewById(R.id.image);
+        parent = (ViewGroup) image.getParent();
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String url = "";
+                if (view.getTag() != null) {
+                    view.setTag(null);
+                    url = "";
+                } else {
+                    view.setTag("");
+                    url = "http://desk.fd.zol-img.com.cn/t_s960x600c5/g5/M00/0D/01/ChMkJlgq0z-IC78PAA1UbwykJUgAAXxIwMAwQcADVSH340.jpg";
+                }
                 FrescoLoader.with(view.getContext())
                         .progressiveRenderingEnabled(true)
                         .fadeDuration(2000)
@@ -74,11 +85,26 @@ public class MainActivity extends AppCompatActivity {
                         .pressedStateOverlay(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.bg_one))
                         .actualScaleType(ImageView.ScaleType.CENTER_CROP)
                         .lowerLoad(R.mipmap.ic_launcher_round)
-                        .load("")//fail
+                        .load(url)//fail
 //                        .load("http://photocdn.sohu.com/20160208/mp58375678_1454886851667_2.gif")//gif
 //                        .load("http://desk.fd.zol-img.com.cn/t_s960x600c5/g5/M00/0D/01/ChMkJlgq0z-IC78PAA1UbwykJUgAAXxIwMAwQcADVSH340.jpg")
                         .localThumbnailPreviewsEnabled(true)
                         .into(image);
+            }
+        });
+
+        findViewById(R.id.remove_and_add).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parent.removeView(image);
+                parent.addView(image);
+            }
+        });
+
+        findViewById(R.id.remove).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parent.removeView(image);
             }
         });
 
