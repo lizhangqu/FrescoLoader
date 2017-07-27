@@ -1,10 +1,10 @@
 ## FrescoLoader
 
-FrescoLoader is a framework which use fresco to load image into **android.widget.ImageView**.
+FrescoLoader is a framework which uses fresco to load an image into the **android.widget.ImageView**.
 
 ## Changelog
 
-See details in [CHANGELOG](https://github.com/lizhangqu/FrescoLoader/blob/master/CHANGELOG.md).
+See changelog details in [CHANGELOG](https://github.com/lizhangqu/FrescoLoader/blob/master/CHANGELOG.md).
 
 ## Examples
 
@@ -12,7 +12,7 @@ I have provided a sample.
 
 See sample [here on Github](https://github.com/lizhangqu/FrescoLoader/tree/master/app).
 
-To run the sample application, simply clone this repository and use android studio to compile, install it on a connected device.
+To run the sample application, simply clone this repository and use android studio to compile it, then install it on a connected device.
 
 ## Usage
 
@@ -46,22 +46,22 @@ dependencies {
 
 ### Fresco 
 
-add fresco if necessary
+Add fresco dependencies as you need.
 
 ```
 // fresco base
 compile("com.facebook.fresco:fresco:${FRESCO_VERSION}") {
     exclude group: 'com.android.support'
 }
-// fresco gif support
+// fresco gif support(if you need gif add this)
 compile("com.facebook.fresco:animated-gif:${FRESCO_VERSION}") {
     exclude group: 'com.android.support'
 }
-// fresco dynamic webp support
+// fresco dynamic webp support(if you need dynamic webp add this)
 compile("com.facebook.fresco:animated-webp:${FRESCO_VERSION}") {
     exclude group: 'com.android.support'
 }
-// fresco static webp support
+// fresco static webp support(if you need static webp add this)
 compile("com.facebook.fresco:webpsupport:${FRESCO_VERSION}") {
     exclude group: 'com.android.support'
 }
@@ -72,39 +72,98 @@ compile("com.facebook.fresco:webpsupport:${FRESCO_VERSION}") {
 ```
 FrescoLoader.with(view.getContext())
             .progressiveRenderingEnabled(true)
+            .fadeDuration(2000)
             .autoPlayAnimations(true)
             .autoRotateEnabled(true)
             .retainImageOnFailure(true)
+            .desiredAspectRatioWithHeight(0.5F)
             .tapToRetryEnabled(true)
-            .desiredAspectRatio(1.5F)
             .focusPoint(new PointF(30, 50))
             .resize(400, 400)
             .fadeDuration(1000)
             .border(Color.RED, 10)
+            .borderColor(Color.RED)
+            .borderWidth(10)
             .cornersRadii(10, 10, 10, 10)
             .cornersRadius(10)
             .roundAsCircle()
-            .progressBar(new CircleProgressBarDrawable())
-            .progressBarScaleType(ScalingUtils.ScaleType.CENTER_CROP)
-            .placeholder(R.mipmap.ic_launcher_round)
-            .placeholderScaleType(ScalingUtils.ScaleType.CENTER_CROP)
-            .failure(R.mipmap.ic_launcher_round)
-            .failureScaleType(ScalingUtils.ScaleType.CENTER_CROP)
-            .retry(R.mipmap.ic_launcher_round)
-            .retryScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+            .backgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.bg_zero))
+            .progressBar(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.icon_progress_bar))
+            .progressBarScaleType(ImageView.ScaleType.CENTER_CROP)
+            .placeholder(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.icon_placeholder))
+            .placeholderScaleType(ImageView.ScaleType.CENTER_CROP)
+            .failure(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.icon_failure))
+            .failureScaleType(ImageView.ScaleType.CENTER_CROP)
+            .retry(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.icon_retry))
+            .retryScaleType(ImageView.ScaleType.CENTER_CROP)
             .colorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN))
-            .pressedStateOverlay(R.mipmap.ic_launcher_round)
-            .overlay(R.mipmap.ic_launcher_round)
-            .background(new ColorDrawable(Color.parseColor("#ee000000")))
-            .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
+            .overlays(overlays)
+            .pressedStateOverlay(ContextCompat.getDrawable(getApplicationContext(), R.mipmap.bg_one))
+            .actualScaleType(ImageView.ScaleType.CENTER_CROP)
             .lowerLoad(R.mipmap.ic_launcher_round)
-            .scaleType(ScalingUtils.ScaleType.CENTER_CROP)
-            .load("http://img1.imgtn.bdimg.com/it/u=615670559,766970618&fm=26&gp=0.jpg")
+            .load("http://desk.fd.zol-img.com.cn/t_s960x600c5/g5/M00/0D/01/ChMkJlgq0z-IC78PAA1UbwykJUgAAXxIwMAwQcADVSH340.jpg")
             .localThumbnailPreviewsEnabled(true)
             .into(image);
 ```
 
-see more method in class **FrescoLoader**
+See more details in class [FrescoLoader.java](https://github.com/lizhangqu/FrescoLoader/blob/master/library/src/main/java/io/github/lizhangqu/fresco/FrescoLoader.java)
+
+If you have extended the android.widget.ImageView class and you can add some method to it, you'd better add this. But it's not necessary if you don't want.
+
+```
+public class MyImageView extends ImageView implements FrescoLoader.TemporaryDetachListener {
+    //holder the TemporaryDetachListener
+    FrescoLoader.TemporaryDetachListener listener;
+
+    public MyImageView(Context context) {
+        super(context);
+    }
+
+    public MyImageView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public MyImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    public void onStartTemporaryDetach() {
+        super.onStartTemporaryDetach();
+        //call delegete
+        if (this.listener != null) {
+            listener.onStartTemporaryDetach(this);
+        }
+
+    }
+
+    @Override
+    public void onFinishTemporaryDetach() {
+        super.onFinishTemporaryDetach();
+        //call delegete
+        if (this.listener != null) {
+            listener.onFinishTemporaryDetach(this);
+        }
+    }
+
+    @Override
+    public void onSaveTemporaryDetachListener(FrescoLoader.TemporaryDetachListener listener) {
+        //holder it
+        this.listener = listener;
+    }
+
+    @Override
+    public void onStartTemporaryDetach(View view) {
+        //empty
+    }
+
+    @Override
+    public void onFinishTemporaryDetach(View view) {
+        //empty
+    }
+}
+
+```
 
 ## License
 
