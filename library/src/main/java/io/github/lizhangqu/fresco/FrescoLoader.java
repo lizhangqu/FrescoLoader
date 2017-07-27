@@ -35,6 +35,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -123,8 +124,8 @@ public class FrescoLoader {
     private boolean mLocalThumbnailPreviewsEnabled;
 
     private FrescoLoader(Context context) {
-        this.mContext = context;
-        this.mDraweeHolderDispatcher = new DraweeHolderDispatcher();
+        this.mContext = context.getApplicationContext();
+        this.mDraweeHolderDispatcher = null;
 
         this.mDesiredAspectRatio = 0;
         this.mUseFixedWidth = true;
@@ -159,7 +160,36 @@ public class FrescoLoader {
 
         this.mPostprocessor = null;
         this.mControllerListener = null;
-        this.mDraweeHolder = DraweeHolder.create(null, mContext);
+        this.mDraweeHolder = null;
+    }
+
+
+    public boolean hasHierarchy() {
+        if (mDraweeHolder != null) {
+            return mDraweeHolder.hasHierarchy();
+        }
+        return false;
+    }
+
+    public DraweeHierarchy getHierarchy() {
+        if (mDraweeHolder != null) {
+            return mDraweeHolder.getHierarchy();
+        }
+        return null;
+    }
+
+    public DraweeController getController() {
+        if (mDraweeHolder != null) {
+            return mDraweeHolder.getController();
+        }
+        return null;
+    }
+
+    public boolean hasController() {
+        if (mDraweeHolder != null) {
+            return mDraweeHolder.getController() != null;
+        }
+        return false;
     }
 
     //****************context start*******************
@@ -228,7 +258,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader placeholder(int placeholderResId) {
-        return placeholder(this.mContext.getResources().getDrawable(placeholderResId));
+        return placeholder(mContext.getResources().getDrawable(placeholderResId));
     }
 
     public FrescoLoader placeholderScaleType(ImageView.ScaleType scaleType) {
@@ -242,7 +272,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader retry(int retryResId) {
-        return retry(this.mContext.getResources().getDrawable(retryResId));
+        return retry(mContext.getResources().getDrawable(retryResId));
     }
 
     public FrescoLoader retryScaleType(ImageView.ScaleType scaleType) {
@@ -256,7 +286,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader failure(int failureResId) {
-        return failure(this.mContext.getResources().getDrawable(failureResId));
+        return failure(mContext.getResources().getDrawable(failureResId));
     }
 
     public FrescoLoader failureScaleType(ImageView.ScaleType scaleType) {
@@ -270,7 +300,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader progressBar(int progressResId) {
-        return progressBar(this.mContext.getResources().getDrawable(progressResId));
+        return progressBar(mContext.getResources().getDrawable(progressResId));
     }
 
     public FrescoLoader progressBarScaleType(ImageView.ScaleType scaleType) {
@@ -284,7 +314,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader backgroundDrawable(int backgroundResId) {
-        return backgroundDrawable(this.mContext.getResources().getDrawable(backgroundResId));
+        return backgroundDrawable(mContext.getResources().getDrawable(backgroundResId));
     }
 
     public FrescoLoader actualScaleType(ImageView.ScaleType scaleType) {
@@ -310,7 +340,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader overlay(int resId) {
-        return overlay(this.mContext.getResources().getDrawable(resId));
+        return overlay(mContext.getResources().getDrawable(resId));
     }
 
     public FrescoLoader pressedStateOverlay(Drawable drawable) {
@@ -325,7 +355,7 @@ public class FrescoLoader {
     }
 
     public FrescoLoader pressedStateOverlay(int resId) {
-        return pressedStateOverlay(this.mContext.getResources().getDrawable(resId));
+        return pressedStateOverlay(mContext.getResources().getDrawable(resId));
     }
 
     //**************overlays end****************
@@ -512,90 +542,150 @@ public class FrescoLoader {
     }
 
 
+    public FrescoLoader prepare() {
+        return this;
+    }
+
+
     //load into an ImageView
     public void into(ImageView targetView) {
         if (targetView == null) {
             return;
         }
-        if (mDraweeHolder == null) {
-            return;
-        }
         if (mUri == null) {
             return;
         }
-        //build hierarchy
-        GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(mContext.getResources())
-                .setPlaceholderImage(mPlaceholderDrawable)
-                .setPlaceholderImageScaleType(mPlaceholderScaleType)
-                .setFailureImage(mFailureDrawable)
-                .setFailureImageScaleType(mFailureScaleType)
-                .setProgressBarImage(mProgressBarDrawable)
-                .setProgressBarImageScaleType(mProgressScaleType)
-                .setRetryImage(mRetryDrawable)
-                .setRetryImageScaleType(mRetryScaleType)
-                .setFadeDuration(mFadeDuration)
-                .setActualImageFocusPoint(mActualImageFocusPoint)
-                .setActualImageColorFilter(mActualImageColorFilter)
-                .setActualImageScaleType(mActualImageScaleType)
-                .setBackground(mBackgroundDrawable)
-                .setOverlays(mOverlays)
-                .setPressedStateOverlay(mPressedStateOverlay)
-                .setRoundingParams(mRoundingParams)
-                .setDesiredAspectRatio(mDesiredAspectRatio)
-                .build();
 
-        //set hierarchy
-        mDraweeHolder.setHierarchy(hierarchy);
-
-        //image request
-        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(mUri)
-                .setAutoRotateEnabled(mAutoRotateEnabled)
-                .setLocalThumbnailPreviewsEnabled(mLocalThumbnailPreviewsEnabled)
-                .setPostprocessor(mPostprocessor)
-                .setProgressiveRenderingEnabled(mProgressiveRenderingEnabled)
-                .setResizeOptions(mResizeOptions)
-                .build();
-
-        //controller
-        PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder()
-                .setAutoPlayAnimations(mAutoPlayAnimations)
-                .setControllerListener(mControllerListener)
-                .setImageRequest(request)
-                .setOldController(mDraweeHolder.getController())
-                .setRetainImageOnFailure(mRetainImageOnFailure)
-                .setTapToRetryEnabled(mTapToRetryEnabled);
-
-
-        //if set the mLowerUri, then pass this param
-        if (mLowerUri != null) {
-            controllerBuilder.setLowResImageRequest(ImageRequest.fromUri(mLowerUri));
+        //we should use tag
+        if (mDraweeHolder == null) {
+            Object tag = targetView.getTag();
+            if (tag instanceof DraweeHolder) {
+                mDraweeHolder = (DraweeHolder<DraweeHierarchy>) tag;
+            }
         }
-        //build controller
-        DraweeController draweeController = controllerBuilder.build();
-        //set controller
-        mDraweeHolder.setController(draweeController);
+        if (mDraweeHolder == null) {
+            mDraweeHolder = DraweeHolder.create(null, targetView.getContext());
+            if (mDraweeHolderDispatcher == null) {
+                mDraweeHolderDispatcher = new DraweeHolderDispatcher();
+            }
+            GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(targetView.getResources())
+                    .setPlaceholderImage(mPlaceholderDrawable)
+                    .setPlaceholderImageScaleType(mPlaceholderScaleType)
+                    .setFailureImage(mFailureDrawable)
+                    .setFailureImageScaleType(mFailureScaleType)
+                    .setProgressBarImage(mProgressBarDrawable)
+                    .setProgressBarImageScaleType(mProgressScaleType)
+                    .setRetryImage(mRetryDrawable)
+                    .setRetryImageScaleType(mRetryScaleType)
+                    .setFadeDuration(mFadeDuration)
+                    .setActualImageFocusPoint(mActualImageFocusPoint)
+                    .setActualImageColorFilter(mActualImageColorFilter)
+                    .setActualImageScaleType(mActualImageScaleType)
+                    .setBackground(mBackgroundDrawable)
+                    .setOverlays(mOverlays)
+                    .setPressedStateOverlay(mPressedStateOverlay)
+                    .setRoundingParams(mRoundingParams)
+                    .build();
 
-        //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
-        //in your will, you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
-        //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
-        if (targetView instanceof TemporaryDetachListener) {
-            ((TemporaryDetachListener) targetView).onSaveTemporaryDetachListener(mDraweeHolderDispatcher);
-        }
+            //set hierarchy
+            mDraweeHolder.setHierarchy(hierarchy);
 
-        //remove listener if needed
-        targetView.removeOnAttachStateChangeListener(mDraweeHolderDispatcher);
-        //if is already attached, call method onViewAttachedToWindow.
-        if (isAttachedToWindow(targetView)) {
-            mDraweeHolderDispatcher.onViewAttachedToWindow(targetView);
-        }
-        //add attach state change listener
-        targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
-        //if is enable retry when fail, set OnTouchListener to intercept the touch event
-        if (mTapToRetryEnabled) {
+            //image request
+            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(mUri)
+                    .setAutoRotateEnabled(mAutoRotateEnabled)
+                    .setLocalThumbnailPreviewsEnabled(mLocalThumbnailPreviewsEnabled)
+                    .setPostprocessor(mPostprocessor)
+                    .setProgressiveRenderingEnabled(mProgressiveRenderingEnabled)
+                    .setResizeOptions(mResizeOptions)
+                    .build();
+
+            //controller
+            PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder()
+                    .setAutoPlayAnimations(mAutoPlayAnimations)
+                    .setControllerListener(mControllerListener)
+                    .setImageRequest(request)
+                    .setOldController(mDraweeHolder.getController())
+                    .setRetainImageOnFailure(mRetainImageOnFailure)
+                    .setTapToRetryEnabled(mTapToRetryEnabled);
+
+
+            //if set the mLowerUri, then pass this param
+            if (mLowerUri != null) {
+                controllerBuilder.setLowResImageRequest(ImageRequest.fromUri(mLowerUri));
+            }
+            //build controller
+            DraweeController draweeController = controllerBuilder.build();
+            //set controller
+            mDraweeHolder.setController(draweeController);
+
+            //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
+            //in your will, you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
+            //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
+            if (targetView instanceof TemporaryDetachListener) {
+                ((TemporaryDetachListener) targetView).onSaveTemporaryDetachListener(mDraweeHolderDispatcher);
+            }
+
+            //remove listener if needed
+            targetView.removeOnAttachStateChangeListener(mDraweeHolderDispatcher);
+            //if is already attached, call method onViewAttachedToWindow.
+            if (isAttachedToWindow(targetView)) {
+                mDraweeHolderDispatcher.onViewAttachedToWindow(targetView);
+            }
+            //add attach state change listener
+            targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
             targetView.setOnTouchListener(mDraweeHolderDispatcher);
+            targetView.setTag(mDraweeHolder);
+        } else {
+            GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(targetView.getResources())
+                    .setPlaceholderImage(mPlaceholderDrawable)
+                    .setPlaceholderImageScaleType(mPlaceholderScaleType)
+                    .setFailureImage(mFailureDrawable)
+                    .setFailureImageScaleType(mFailureScaleType)
+                    .setProgressBarImage(mProgressBarDrawable)
+                    .setProgressBarImageScaleType(mProgressScaleType)
+                    .setRetryImage(mRetryDrawable)
+                    .setRetryImageScaleType(mRetryScaleType)
+                    .setFadeDuration(mFadeDuration)
+                    .setActualImageFocusPoint(mActualImageFocusPoint)
+                    .setActualImageColorFilter(mActualImageColorFilter)
+                    .setActualImageScaleType(mActualImageScaleType)
+                    .setBackground(mBackgroundDrawable)
+                    .setOverlays(mOverlays)
+                    .setPressedStateOverlay(mPressedStateOverlay)
+                    .setRoundingParams(mRoundingParams)
+                    .build();
+
+            //set hierarchy
+            mDraweeHolder.setHierarchy(hierarchy);
+
+            //image request
+            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(mUri)
+                    .setAutoRotateEnabled(mAutoRotateEnabled)
+                    .setLocalThumbnailPreviewsEnabled(mLocalThumbnailPreviewsEnabled)
+                    .setPostprocessor(mPostprocessor)
+                    .setProgressiveRenderingEnabled(mProgressiveRenderingEnabled)
+                    .setResizeOptions(mResizeOptions)
+                    .build();
+
+            //controller
+            PipelineDraweeControllerBuilder controllerBuilder = Fresco.newDraweeControllerBuilder()
+                    .setAutoPlayAnimations(mAutoPlayAnimations)
+                    .setControllerListener(mControllerListener)
+                    .setImageRequest(request)
+                    .setOldController(mDraweeHolder.getController())
+                    .setRetainImageOnFailure(mRetainImageOnFailure)
+                    .setTapToRetryEnabled(mTapToRetryEnabled);
+
+
+            //if set the mLowerUri, then pass this param
+            if (mLowerUri != null) {
+                controllerBuilder.setLowResImageRequest(ImageRequest.fromUri(mLowerUri));
+            }
+            //build controller
+            DraweeController draweeController = controllerBuilder.build();
+            //set controller
+            mDraweeHolder.setController(draweeController);
         }
-        //set image drawable
-        targetView.setImageDrawable(mDraweeHolder.getTopLevelDrawable());
 
         //compat for desiredAspectRatio
         if (mDesiredAspectRatio != 0) {
@@ -626,6 +716,9 @@ public class FrescoLoader {
                 }
             }
         }
+
+        //set image drawable
+        targetView.setImageDrawable(mDraweeHolder.getTopLevelDrawable());
 
     }
 
@@ -680,6 +773,7 @@ public class FrescoLoader {
 
         @Override
         public void onViewAttachedToWindow(View v) {
+            Log.e("TAG", "onViewAttachedToWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onAttach();
             }
@@ -687,6 +781,7 @@ public class FrescoLoader {
 
         @Override
         public void onViewDetachedFromWindow(View v) {
+            Log.e("TAG", "onViewDetachedFromWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onDetach();
             }
