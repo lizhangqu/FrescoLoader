@@ -619,7 +619,7 @@ public class FrescoLoader {
             mDraweeHolder.setController(draweeController);
 
             //if targetView is instanceof TemporaryDetachListener, set TemporaryDetachListener
-            //in your will, you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
+            //you should override onSaveTemporaryDetachListener(TemporaryDetachListener l) to holder the param TemporaryDetachListener.
             //also override method onStartTemporaryDetach() and onFinishTemporaryDetach() to call the holder's onStartTemporaryDetach() and onFinishTemporaryDetach()
             if (targetView instanceof TemporaryDetachListener) {
                 ((TemporaryDetachListener) targetView).onSaveTemporaryDetachListener(mDraweeHolderDispatcher);
