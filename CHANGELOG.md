@@ -1,4 +1,4 @@
-version 0.0.1(prepare to release)
+version 0.0.1
 -------------
  
- - current not release a version 
+ - first release
