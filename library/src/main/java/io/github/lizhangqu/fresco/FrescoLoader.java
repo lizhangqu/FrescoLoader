@@ -782,7 +782,6 @@ public class FrescoLoader {
 
         @Override
         public void onViewAttachedToWindow(View v) {
-            Log.e("TAG", "onViewAttachedToWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onAttach();
             }
@@ -790,7 +789,6 @@ public class FrescoLoader {
 
         @Override
         public void onViewDetachedFromWindow(View v) {
-            Log.e("TAG", "onViewDetachedFromWindow:" + v);
             if (mDraweeHolder != null) {
                 mDraweeHolder.onDetach();
             }
