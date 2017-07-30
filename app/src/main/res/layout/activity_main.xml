@@ -10,14 +10,14 @@
 
     <ImageView
         android:id="@+id/image"
-        android:layout_width="400dp"
-        android:layout_height="400dp"/>
+        android:layout_width="300dp"
+        android:layout_height="300dp"/>
 
     <Button
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="列表测试"/>
+        android:text="列表生命周期兼容测试"/>
 
     <Button
         android:id="@+id/btn"
