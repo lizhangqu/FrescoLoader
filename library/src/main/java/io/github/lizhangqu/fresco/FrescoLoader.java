@@ -565,7 +565,7 @@ public class FrescoLoader {
 
         //we should use tag
         if (mDraweeHolder == null) {
-            Object tag = targetView.getTag();
+            Object tag = TagCompat.getTag(targetView);
             if (tag instanceof DraweeHolder) {
                 mDraweeHolder = (DraweeHolder<DraweeHierarchy>) tag;
             }
@@ -642,7 +642,7 @@ public class FrescoLoader {
                 targetView.addOnAttachStateChangeListener(mDraweeHolderDispatcher);
             }
             targetView.setOnTouchListener(mDraweeHolderDispatcher);
-            targetView.setTag(mDraweeHolder);
+            TagCompat.setTag(targetView, mDraweeHolder);
         } else {
             GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(targetView.getResources())
                     .setPlaceholderImage(mPlaceholderDrawable)
