@@ -7,3 +7,9 @@ version 0.0.2
 -------------
   
  - Compat for AbsListView temporaryDetach
+ 
+ 
+version 0.0.3
+-------------
+  
+ - Add Tag Compat
