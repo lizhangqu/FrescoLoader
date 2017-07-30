@@ -22,6 +22,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile "junit:junit:${global_junitVersion}"
+    compile ("com.android.support:support-application:0.0.7")
     provided("com.facebook.fresco:fresco:${FRESCO_VERSION}") {
         exclude group: 'com.android.support'
     }
