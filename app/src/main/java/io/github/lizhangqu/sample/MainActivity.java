@@ -1,5 +1,6 @@
 package io.github.lizhangqu.sample;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
@@ -105,6 +106,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 parent.removeView(image);
+            }
+        });
+
+        findViewById(R.id.listview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, ListActivity.class));
             }
         });
 
