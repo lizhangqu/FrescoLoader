@@ -35,7 +35,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -645,6 +644,9 @@ public class FrescoLoader {
             targetView.setOnTouchListener(mDraweeHolderDispatcher);
             TagCompat.setTag(targetView, mDraweeHolder);
         } else {
+            //release original resource
+            mDraweeHolder.onDetach();
+
             GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(targetView.getResources())
                     .setPlaceholderImage(mPlaceholderDrawable)
                     .setPlaceholderImageScaleType(mPlaceholderScaleType)
